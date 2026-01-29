@@ -1,0 +1,45 @@
+name: Build and Deploy 
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+#    steps:
+#    - uses: actions/checkout@v4
+#    - name: Build
+#      run: cargo build --verbose
+#    - name: Run tests
+#      run: cargo test --verbose
+#    - name: Run
+#      run: cargo run
+
+  commit-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v6
+        with:
+          ref: json
+
+      - name: Modify file
+        run: |
+          echo "Hello $(date)" >> astro.json
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add astro.json
+          git commit -m "Update astro.json" || echo "No changes"
+
+      - name: Push changes
+        run: git push origin json
