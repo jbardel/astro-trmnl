@@ -1,4 +1,8 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    fs::OpenOptions,
+    io::Write,
+};
 
 use scraper::{Html, Node, Selector};
 
@@ -19,7 +23,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .select(&sign_selector)
             .next()
             .map(|e| e.text().collect::<String>())
-            .unwrap_or_else(|| "Inconnu".to_string());
+            .unwrap_or_else(|| "Unknown".to_string());
 
         let description = parent
             .children()
@@ -34,7 +38,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         map.insert(sign, description);
     }
 
-    println!("{:?}", map);
+    let json = serde_json::to_string(&map)?;
+
+    write(json)?;
+
+    Ok(())
+}
+
+fn write(content: String) -> Result<(), Box<dyn std::error::Error>> {
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open("astro.json")?;
+
+    file.write_all(content.as_bytes())?;
 
     Ok(())
 }
