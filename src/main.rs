@@ -1,9 +1,6 @@
-use std::{
-    collections::HashMap,
-    fs::OpenOptions,
-    io::Write,
-};
+use std::{collections::HashMap, fs::OpenOptions, io::Write};
 
+use chrono::Local;
 use scraper::{Html, Node, Selector};
 
 const URL: &str = "https://www.astroo.com/horoscope.php";
@@ -37,6 +34,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         map.insert(sign, description);
     }
+
+    //insert current date
+    let now = Local::now();
+    let formatted = now.format("%d/%m/%Y").to_string();
+
+    map.insert("date".to_string(), formatted);
 
     let json = serde_json::to_string(&map)?;
 
